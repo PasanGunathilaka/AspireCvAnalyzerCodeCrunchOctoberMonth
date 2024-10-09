@@ -50,6 +50,7 @@ public class CvAnalyzeController : ControllerBase
         }
         else
         {
+
             var errorContent = await response.Content.ReadAsStringAsync();
             return StatusCode((int)response.StatusCode, errorContent);
         }
