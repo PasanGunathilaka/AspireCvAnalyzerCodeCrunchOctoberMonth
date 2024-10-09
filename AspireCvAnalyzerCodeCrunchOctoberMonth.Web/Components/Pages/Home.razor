@@ -1,7 +1,101 @@
 ﻿@page "/"
+@using System.Text
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<PageTitle>CV Analyzer</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="card text-center" style="width: 800px; margin: 0 auto;padding:4%;margin-top:50px;">
+    <div class="card-header" style="
+    background: #433878;
+    color: white;
+">
+        <h2>CV Analyzer</h2>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            <label for="fileInput">Please Upload The CV:</label>
+            <input type="file" class="form-control" id="fileInput" accept=".pdf" @onchange="HandleFileUpload">
+        </div>
+        <div id="results"></div>
+    </div>
+</div>
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(apiResponse))
+{
+    <h4>API Response:</h4>
+    <pre>@apiResponse</pre>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red;">Error: @errorMessage</p>
+}
+@code {
+    private bool isLoading = false;
+    private string apiResponse;
+    private string errorMessage;
 
-Welcome to your new app.
+    private async Task HandleFileUpload(ChangeEventArgs e)
+    {
+        var file = e.Value as IBrowserFile;
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream(maxAllowedSize: 2 * 1024 * 1024);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+
+             string cvText = await ConvertPdfToText(memoryStream);
+
+             await SendCvTextToApi(cvText);
+        }
+    }
+
+    private async Task<string> ConvertPdfToText(Stream pdfStream)
+    {
+        using var reader = new iText.Kernel.Pdf.PdfReader(pdfStream);
+        using var pdfDoc = new iText.Kernel.Pdf.PdfDocument(reader);
+        var text = new StringBuilder();
+
+        for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++)
+        {
+            var page = pdfDoc.GetPage(i);
+            var strategy = new iText.Kernel.Pdf.Canvas.Parser.Listener.SimpleTextExtractionStrategy();
+            var pageText = iText.Kernel.Pdf.Canvas.Parser.PdfTextExtractor.GetTextFromPage(page, strategy);
+            text.AppendLine(pageText);
+        }
+
+        return text.ToString();
+    }
+
+    private async Task SendCvTextToApi(string cvText)
+    {
+        var requestBody = new { cvText };
+        isLoading = true; 
+        apiResponse = null; 
+        errorMessage = null;  
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7522/api/CvAnalyze/analyze", requestBody);
+
+            if (response.IsSuccessStatusCode)
+            {
+                apiResponse = await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message; 
+        }
+        finally
+        {
+            isLoading = false; 
+        }
+    }
+}

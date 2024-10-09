@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+    <PackageReference Include="Azure.Identity" Version="1.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AspireCvAnalyzerCodeCrunchOctoberMonth.ServiceDefaults\AspireCvAnalyzerCodeCrunchOctoberMonth.ServiceDefaults.csproj" />
   </ItemGroup>
 
