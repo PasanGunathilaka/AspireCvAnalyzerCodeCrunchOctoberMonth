@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>bc46ee7d-5e13-40a4-a574-ab365ed21be5</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AspireCvAnalyzerCodeCrunchOctoberMonth.ApiService\AspireCvAnalyzerCodeCrunchOctoberMonth.ApiService.csproj" />
+    <ProjectReference Include="..\AspireCvAnalyzerCodeCrunchOctoberMonth.Web\AspireCvAnalyzerCodeCrunchOctoberMonth.Web.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Settings.job">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
